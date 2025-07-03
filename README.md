@@ -1,81 +1,111 @@
 # HexStrike
 
-HexStrike is an automated penetration testing platform that leverages AI and MCP (Model Context Protocol) to orchestrate security tools on Kali Linux from a CLI client running on Windows. HexStrike enables efficient, automated pentesting by letting AI select and execute the right tools for each task.
+HexStrike is an intelligent web & API penetration testing framework that leverages AI and modular command processing (MCP) tools for comprehensive, automated security assessments.
 
 ## Features
 
-- **Automated Pentesting:** AI-driven selection and execution of Kali Linux tools.
-- **Cross-Platform:** CLI client for Windows, server component for Kali Linux.
-- **MCP Integration:** Uses MCP to securely communicate and control pentesting tools.
-- **Modular Design:** Easily extendable to support more tools and workflows.
-- **Secure Communication:** Ensures safe data transfer between client and server.
+- Autonomous reconnaissance (tech stack, crawling, endpoint discovery)
+- AI-driven testing and payload generation (multi-model via Copilot LM)
+- Intelligent exploitation and evidence collection
+- Strategic integration of Kali Linux tools (via MCP)
+- Real-time web UI with live updates
+- Comprehensive reporting and vulnerability database
 
 ## Architecture
 
+- **Backend:** Python 3, Flask, Flask-SocketIO, Redis, PyYAML
+- **Frontend:** React (Vite or Create React App)
+- **Tool Integration:** YAML-based MCP tool definitions (Kali tools, etc.)
+- **AI Integration:** Copilot LM (vscode-lm:copilot) for multi-model support
+
+## Project Structure
+
 ```
-+-------------------+         Secure MCP         +-------------------+
-|  Windows Machine  |  <--------------------->  |   Kali Linux VM   |
-|   HexStrike CLI   |                           |  HexStrike Server |
-+-------------------+                           +-------------------+
-        |                                               |
-        |             [AI decides tools]                |
-        |---------------------------------------------->|
-        |                                               |
-        |        [Results returned to CLI]              |
-        |<----------------------------------------------|
+hexstrike/
+├── backend/
+│   ├── app.py
+│   ├── tool_executor.py
+│   ├── ai_integration.py
+│   ├── requirements.txt
+│   └── ...
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── ...
+├── tool_definitions/
+│   ├── sqlmap.yaml
+│   ├── nmap.yaml
+│   └── ...
+├── docs/
+│   └── usage_guide.md
+└── README.md
 ```
 
-- **Client:** CLI app for Windows. Sends pentest requests, receives results.
-- **Server:** Runs on Kali Linux. Executes tools (e.g., nmap, nikto, hydra) as instructed by AI.
+## Quick Start
 
-## Installation
+### Prerequisites
 
-### Server (Kali Linux)
+- Python 3.x
+- Node.js & npm
+- Redis server
+- Kali Linux tools (optional, for full tool integration)
 
-1. Clone the repository and navigate to the server directory.
-2. Install required dependencies (Python 3.x, MCP server, pentesting tools).
-3. Run the server script:
-   ```bash
-   python3 hexstrike_server.py
-   ```
+### Backend Setup
 
-### Client (Windows)
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements.txt
+python app.py
+```
 
-1. Clone the repository and navigate to the client directory.
-2. Install required dependencies (Python 3.x, MCP client).
-3. Run the CLI:
-   ```bash
-   python hexstrike_cli.py
-   ```
+### Frontend Setup
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Tool Definitions
+
+Add YAML files for each tool in `tool_definitions/`. Example for SQLMap:
+
+```yaml
+tool_name: sqlmap
+description: "Automatic SQL injection and database takeover tool."
+base_command: "sqlmap"
+parameters:
+  - name: target_url
+    type: string
+    required: true
+    description: "The target URL to test."
+    cli_format: "{value}"
+  - name: dbms
+    type: string
+    required: false
+    description: "Specify the DBMS to use."
+    cli_format: "--dbms={value}"
+  - name: risk
+    type: string
+    required: false
+    description: "Risk level (1-3)."
+    cli_format: "--risk={value}"
+```
 
 ## Usage
 
-1. Start the server on Kali Linux.
-2. Run the CLI on Windows.
-3. Use CLI commands to initiate pentests:
-   ```
-   hexstrike scan --target 192.168.1.10
-   hexstrike brute --service ssh --target 192.168.1.10
-   ```
+1. Start backend and frontend servers.
+2. Access the web UI to submit targets and view results.
+3. Configure and run scans using integrated tools and AI payloads.
+4. Review findings and download reports.
 
-## Supported Tools
+## Documentation
 
-- nmap
-- nikto
-- hydra
-- gobuster
-- sqlmap
-- (and more, extensible via MCP)
-
-## Security
-
-- Ensure network communication is secured (VPN, SSH tunnel, or TLS).
-- Run only in controlled, authorized environments.
-
-## Contributing
-
-Contributions are welcome! Please open issues or submit pull requests for new features, bug fixes, or documentation improvements.
+- See `docs/usage_guide.md` for detailed usage and API documentation.
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+MIT

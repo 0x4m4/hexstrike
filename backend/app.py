@@ -18,12 +18,33 @@ redis_client = redis.from_url(redis_url)
 def health_check():
     return jsonify({"status": "ok"}), 200
 
-# Placeholder: Tool execution endpoint
+from tool_executor import execute_tool as run_tool
+from ai_integration import AIIntegration
+
+ai = AIIntegration()
+
+# AI-driven orchestration endpoint
 @app.route('/api/execute', methods=['POST'])
 def execute_tool():
     data = request.json
-    # TODO: Implement tool execution logic
-    return jsonify({"status": "pending", "data": data}), 202
+    target_url = data.get("params", {}).get("target_url")
+    scan_state = {"target_url": target_url, "tools_run": []}
+    results = []
+    last_result = None
+
+    while True:
+        action = ai.suggest_next_action(scan_state, last_result)
+        if not action:
+            break
+        tool = action["tool"]
+        params = action["params"]
+        tool_result = run_tool(tool, params)
+        results.append({"tool": tool, "params": params, "result": tool_result})
+        scan_state["tools_run"].append(tool)
+        last_result = tool_result
+
+    analysis = ai.analyze_results(results)
+    return jsonify({"status": "complete", "results": results, "ai_analysis": analysis}), 200
 
 # WebSocket event for real-time updates
 @socketio.on('connect')
